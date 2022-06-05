@@ -1,0 +1,187 @@
+OBJECTIVE:
+        ~ TO CREATE A BLOG WITH AUTHENTICATION AND ADD COMMENT SESSION FOR USERS
+        ~ ADMIN ONLY SET UP FOR EDITING POSTS
+        ~ admin - admin@gmail.com pass
+        ~ user - user@gmail.com pass
+
+1. SETUP FLASK SERVER
+
+2. CREATE A RESTFUL API BLOG WITH NEW POST, EDIT POST, DELETE POST OPTIONS
+
+3. CREATE WTFORMS - RegisterForm
+        class RegisterForm(FlaskForm):
+            email = StringField("email", validators=[DataRequired(), Email()])
+            password = PasswordField("password", validators=[DataRequired()])
+            name = StringField("name", validators=[DataRequired()])
+            submit = SubmitField("Sign Up")
+
+4. CREATE CLASS FOR Users
+
+5. IN REGISTER FUNCTION:
+        ~ RENDER REGISTER.HTML USING WTFORM
+        ~ ADD QUICK WTFORMS IN REGISTER.HTML
+        ~ IF USER ALREADY EXISTS IN DATABASE, 1. FLASH MESSAGE ---> "EMAIL ALREADY EXISTS"
+        ~ AFTER USERS REGISTER USINF EMAIL, PASSWORD, NAME --> SUBMIT
+        ~ THROUGH POST METHODS, ENTRY ARE CREATED A NEW USER IN USER TABEL AT blog.db
+        ~ PASSWORD HERE, IS HASHED USING SHA256 METHOD AND SALTED 8 TIMES
+        ~ REDIRECTED TO HOME PAGE FOR LOGIN
+
+6. CREATE WTFORMS - LoginForm:
+        class LoginForm(FlaskForm):
+            email = StringField("email", validators=[DataRequired(), Email()])
+            password = PasswordField("password", validators=[DataRequired()])
+            submit = SubmitField("Log In")
+
+7. FLASK LOGIN PROCEDURES TO AUTHENTICATE USERS
+        ~ INTITIALIZE LoginManager IN APP
+        ~ CREATE USER LOADER TO CALLBACK THE USERS_ID
+                ~ USE @login_manager.user_loader
+                ~ pass user_id as parameter ans return user query using get(user_id)
+        ~ ADD USERMIXIN TO CLASS
+
+8. LOGIN FUNCTION:
+        ~ RENDER TEMPLATE 'LOGIN.HTML' WITH FORM
+    THROUGH POST, RECEIVED EMAIL, PASSWORD ARE CHECKED IN DATABASE
+        ~ FIRST FILTER THE USER WITH THAT EMAIL ID
+        ~ CHECK IF USER IS IN DATABASE
+        ~ CHECK THE PASSWORD USIN check_password_hash
+        ~ IF SUCCESS, login_user() method from flask login module is used to login user
+        ~ return to HOME
+    CONDITIONS:
+        ~ IF USER NOT IN DATABASE, 2. FLASH MESSAGE --> "EMAIL DOESNOT EXISTS, SIGN UP"
+        ~ IF PASSWORD IN CORRECT, 3.FLASH MESSAGE --> "INCORRECT PASSWORD"
+        ~ ELSE LOGIN_USER METHOS LOGIN THE USER
+
+
+9. TO MODIFY NAVBAR:
+        ~ YO DISPLAY LOGIN REGISTER FOR USER NOT AUTHENTICATED
+        ~ TO DISAPLAY LOGOUT FOR USER AUTHENTICATED
+
+10. LOGOUT FUNCTION:
+        ~ TO USER LOGOUT_USER() FROM FLASK LOGIN MODULE
+        ~ REDIRECT TO HOME
+
+11. PROTECTED ROUTE:
+        ~ TO DISPLAY NEWPOST, EDITPOST BUTTON ,DELETE LINK TO ADMIN
+        ~ ADMIN IS USER WITH ID ==1
+        ~ CAUTION:
+                JUST BECAUSE APPLIED A IF CONDITION, DOESNT MEAN THAT USER CANNOT ACCESS PAGES MANUALLY
+        ~ SO CREATE A ADMIN_ONLY DECORATOT
+
+12. ADMIN_ONLY DECORATOR:
+        ~ JUST LIEK LOGIN_REQUIRED DECORATOR, IT IS A DECORATOR FUNCTION PASSING FUNCTION TO BE WRAPPED
+        ~ @WRAPS(F) WRAPS THE FUNCTION
+        ~ WRAPPER FUNCTION PASSES ANY **ARGS,**KWARGS
+        ~ INSIDE IT IF CONSITION FOR ADMIN USER_IDD==1
+        ~ RETURN WRAPPED FUNCTION
+
+        ~ APPLYT @ADMIN_ONLY TO NEW-POST, EDIT-POST, DELETE-POST ROUTE
+
+13. CREATING A RELATIONAL DATABASE:
+        REASON:
+                ~ TO ALLOW SOME USER IN FUTURE TO EDIT, ADD POSTS BY ADMIN, SO ONE USER TO MANY BLOG RELATIONSHIP
+        NEEDED : USING FOREIGNKEY, RELATIONSHIP() FROM SQLALCHEMY.ORG
+        TO CREATE A BASIC RELATIONSHIP B/W User and BlogPost Table
+
+                USER TABLE               |               BLOGPOST TABLE
+                id            Int        |              id            Int
+                name          varchar    |    many  <---author        User
+                email         varchar    |              author_id     Int
+                password      varchar    |              title         varchar
+                posts         BlogPOst   |---> one      subtitle
+                                                        data
+                                                        body
+                                                        img_url
+
+
+
+        ~ ADD POSTS AS RELATIONSHIP WITH BLOGPOST TO USER
+            THIS ACT LIKE A LIST OF BLOGPOST OBJECT ATTACHED TO EACH USER
+
+        ~ ADD AUTHOR_ID AS FOREIGN KEY INSIDE BLOGPOST TABLE LINKING IT WITH USER TABLW
+        ~ ADD AUTHOR AS REFERENCE TO POSTS IN USER TABLE
+
+14. DELETE BLOG.DB TO RESET
+
+15. TO MODIFY INDEX, POST HTML FOR AUTHOR;S NAME
+        ~ IN THE TEMPLATE, AUTHOR NAME ARE DISPLAYED BY THIS LINE post.author check now what is author in post table!
+        ~ IT IS NOW A USER OBJECT SO post.author.-->gototableUSer-->.name
+
+16. CREATE WTFORMS - CreateForm:
+        class Commentform(FlaskForm):
+            comment_body = CKEditorField("Comment", validators=[DataRequired()])
+            submit = SubmitField("Submit Comment")
+
+17. RENDER POST HTML:
+        ~ ADD CKEDITOR HTML FORM TO POST.HTML
+
+18. CREATE CLASS COMMENT:
+        ~ ID, BODY AS ATTRIBUTES
+
+19. ESTABLISH ONE TO MANY RELATIONSHIP BETWEEN ONE USER TO MANY COMMENTS
+
+
+                COMMENT TABLE            |               BLOGPOST TABLE
+                id            Int        |              id            Int
+                author_id     Integer    |       many<--author        User
+                author        User       |---> many     author_id     Int
+                text          text       |              title         varchar
+                                         |              subtitle
+                                                        data
+                                                        body
+                                                        img_url
+
+
+                USER TABLE
+                id            Int
+                name          varchar
+                email         varchar
+                password      varchar
+                posts         BlogPOst -->one
+                comment       Comments --> one
+
+        ~ ADD COMMENT AS RELATIONSHIP B/W COMMENT_AUTHOR
+        ~ ADD COMMENT_AUTHOR AS REALTIONSHIP B/W COMMENT
+        ~ ADD AUTHOR_ID AS FOREIGN KEY IN COMMENT TABLE
+
+20. ESTABLISH ONE TO MANY RELATION SHIP B/W ONE BLOG HAVE MANY COMMENTS
+                 COMMENT TABLE            |               BLOGPOST TABLE
+                id            Int        |              id            Int
+                author_id     Integer    |       many<--author        User
+                author        User       |---> many     author_id     Int
+                text          text       |              title         varchar
+                parent_post   BlogPost   |              subtitle
+                post_id       Integer                   data
+                                                        body
+                                                        img_url
+                                                        comment        Comment
+
+
+                USER TABLE
+                id            Int
+                name          varchar
+                email         varchar
+                password      varchar
+                posts         BlogPOst -->one
+                comment       Comments --> one
+
+    ~ ADD COMMENT TO RELATIONSHIP B/W PARENT POSTS
+    ~ ADD PARENT_POSTS IN COMMENT RELATIONS B/W COMMENT
+    ~ ADD post_id in COMMENT AS FOREIGN KEY
+
+21. RESET BLOG.DB ADD BLOGS AND LOGIN INFO
+
+22. IN SHOW POST:
+        ~ THROUGH POST, IF USER NOT AUTHENTICATRED 3. FLASH MESSAGE --> "LOGIN FIRST TO COMMENT"
+        ~ REDIRECT TO LOGIN
+        ~ ADD NEW COMMENT ENTERED BY USER IN WTFORMS COMMENT
+
+23. IN POST.HTML:
+        ~ SINCE COMMENT IS A LIST OF COMMENT PASSED IN SHOW_POST FUNCTION TO RENDER THE POST.HTML
+        ~ ADD COMMENT.AUTHOR.NAME, COMMENT.BODY
+
+24. ADD GRAVATAR RANDOM GENERATED ICON FOR USER THAT COMMENT ACCROFING TO THEIR ID
+
+
+
+
