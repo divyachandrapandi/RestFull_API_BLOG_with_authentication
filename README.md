@@ -5,6 +5,6 @@ This is a Blog webpage created
         ~ using REST API for editing the page
         ~ added authentication using Flask Login
         ~ created WTForm for user interface
-        
+        ~ CKeditor for comment sections
 I have entirely concentrated task on backend development using FLASK and the frontend structure is actually
 downloaded for free from startbootstrap
