@@ -30,7 +30,7 @@ login_manager = LoginManager(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL",'sqlite:///blog.db')       #'sqlite:///blog.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-# TEST
+# TESTING
 ##RELATIONAL DATABASE
 base = declarative_base()
 
