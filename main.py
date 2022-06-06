@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash,request
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from datetime import date
@@ -11,6 +11,13 @@ from forms import CreatePostForm, RegisterForm, LoginForm, Commentform
 from flask_gravatar import Gravatar
 from functools import wraps
 from flask import abort
+import smtplib
+
+
+
+my_gmail = "divya2pythondeveloper@gmail.com"
+my_password = "xfnleymkhjcjmqkb"
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -180,9 +187,29 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
-def contact():
-    return render_template("contact.html")
+@app.route('/contact', methods=['POST','GET'])
+def contactpage():
+    post_method =request.method
+    data= request.form
+    if post_method == "POST":
+        send_email(data['user_name'],data['user_email'], data['user_phone'], data['user_msg'])
+        return render_template('contact.html', msg_sent=True)
+    else:
+        return render_template('contact.html', msg_sent=False )
+def send_email(first_name, last_name, phone , message):
+    with smtplib.SMTP("smtp.gmail.com") as connection:
+
+        connection.starttls()
+        connection.login(user=my_gmail, password=my_password)
+        connection.sendmail(from_addr=my_gmail,
+                            to_addrs="divya4shivalaya@gmail.com",
+                            msg=f"Subject:Contact form HTML FORM !\n\n"
+                                f"Hi this is message from {first_name}{last_name}\n"
+                                f"say hi\n"
+                                f"This is my number {phone}\n"
+                                f"{message}"
+                            )
+
 
 
 @app.route("/new-post", methods=["GET", "POST"])
