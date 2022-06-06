@@ -184,4 +184,4 @@ OBJECTIVE:
 
 
 
-
+25. USE TO FREEZE VERSION IN REQUIREMENTS.TXT --> pip freeze> requirements.txt
