@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreatePostForm, RegisterForm, LoginForm, Commentform
+from forms import CreatePostForm, RegisterForm, LoginForm, Commentform, ContactForm
 from flask_gravatar import Gravatar
 from functools import wraps
 from flask import abort
@@ -188,25 +188,30 @@ def about():
 
 
 @app.route('/contact', methods=['POST','GET'])
-def contactpage():
-    post_method =request.method
-    data= request.form
-    if post_method == "POST":
-        send_email(data['user_name'],data['user_email'], data['user_phone'], data['user_msg'])
-        return render_template('contact.html', msg_sent=True)
-    else:
-        return render_template('contact.html', msg_sent=False )
-def send_email(first_name, last_name, phone , message):
+def contact():
+    form = ContactForm()
+
+    if form.validate_on_submit():
+        send_email(form.name.data,form.email.data, form.phone.data, form.message.data)
+        form.name.data = ""
+        form.email.data = ""
+        form.phone.data = ""
+        form.message.data = ""
+        return render_template('contact.html', form=form,msg_sent=True)
+
+    return render_template("contact.html", form =form)
+
+def send_email(name, email, phone , message):
     with smtplib.SMTP("smtp.gmail.com") as connection:
 
         connection.starttls()
         connection.login(user=my_gmail, password=my_password)
         connection.sendmail(from_addr=my_gmail,
                             to_addrs="divya4shivalaya@gmail.com",
-                            msg=f"Subject:Contact form HTML FORM !\n\n"
-                                f"Hi this is message from {first_name}{last_name}\n"
+                            msg=f"Subject:Contact from Your blog !\n\n"
+                                f"Hi this is message from {name}\n"
                                 f"say hi\n"
-                                f"This is my number {phone}\n"
+                                f"This is my contact details {phone}, {email}\n"
                                 f"{message}"
                             )
 
