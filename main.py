@@ -16,8 +16,8 @@ import os
 
 
 
-my_gmail = "divya2pythondeveloper@gmail.com"
-my_password = "xfnleymkhjcjmqkb"
+my_gmail = "your gmail id"
+my_password = "password"
 
 
 app = Flask(__name__)
